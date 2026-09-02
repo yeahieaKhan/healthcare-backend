@@ -19,6 +19,25 @@ const registerPatient = async (req: Request, res: Response) => {
   }
 };
 
+const signIn = async (req: Request, res: Response) => {
+  console.log(req.body);
+  try {
+    const result = await AuthService.signIn(req.body);
+
+    res.status(200).json({
+      success: true,
+      message: "Login successful",
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(401).json({
+      success: false,
+      message: error.message || "Login failed",
+    });
+  }
+};
+
 export const AuthController = {
   registerPatient,
+  signIn,
 };

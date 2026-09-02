@@ -44,6 +44,6 @@
     "esModuleInterop": true,
     "ignoreDeprecations": "6.0"
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "node"],
   "exclude": ["node_modules", "dist"]
 }
