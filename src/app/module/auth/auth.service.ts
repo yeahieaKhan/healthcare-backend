@@ -50,7 +50,6 @@ const registerPatient = async (payload: IRegisterPatientPayload) => {
 };
 
 // login
-
 const signIn = async (payload: ISignInPayload) => {
   const { email, password } = payload;
 
@@ -61,15 +60,19 @@ const signIn = async (payload: ISignInPayload) => {
     },
   });
 
+  if (!data.user) {
+    throw new Error("Login failed");
+  }
+
   if (data.user.status === UserStatus.BLOCKED) {
-    throw new Error();
-    ("User is blocked");
+    throw new Error("User is blocked");
   }
 
   if (data.user.status === UserStatus.DELETED) {
-    throw new Error();
-    ("User is deleted");
+    throw new Error("User is deleted");
   }
+
+  console.log(data);
 
   return data;
 };

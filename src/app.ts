@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import { prisma } from "./app/lib/prisma";
 import { SpecialtyRouter } from "./app/module/specialty/specialty.router";
 import { IndexRouter } from "./app/routes";
+import { authRouter } from "./app/module/auth/auth.router";
 
 const app = express();
 const port = 3000;
@@ -9,6 +10,8 @@ const port = 3000;
 app.use(express.json());
 
 app.use("/api/v1", IndexRouter);
+
+app.use("/api/v1", authRouter);
 
 // app.post("/", async (req: Request, res: Response) => {
 //   try {
