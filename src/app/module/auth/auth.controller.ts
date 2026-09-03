@@ -5,6 +5,7 @@ const registerPatient = async (req: Request, res: Response) => {
   try {
     const data = req.body;
     const result = await AuthService.registerPatient(data);
+    console.log("result form user registreation ", result);
     res.status(201).send({
       success: true,
       message: "Patient create successfully",
@@ -20,9 +21,9 @@ const registerPatient = async (req: Request, res: Response) => {
 };
 
 const signIn = async (req: Request, res: Response) => {
-  console.log(req.body);
+  const payload = req.body;
   try {
-    const result = await AuthService.signIn(req.body);
+    const result = await AuthService.signIn(payload);
 
     res.status(200).json({
       success: true,
