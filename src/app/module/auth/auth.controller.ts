@@ -21,14 +21,19 @@ const registerPatient = async (req: Request, res: Response) => {
 };
 
 const signIn = async (req: Request, res: Response) => {
-  const payload = req.body;
   try {
-    const result = await AuthService.signIn(payload);
+    const result = await AuthService.signIn(req.body);
+
+    const setCookies = result.headers.getSetCookie();
+
+    setCookies.forEach((cookie) => {
+      res.append("Set-Cookie", cookie);
+    });
 
     res.status(200).json({
       success: true,
       message: "Login successful",
-      data: result,
+      data: result.data,
     });
   } catch (error: any) {
     res.status(401).json({
@@ -37,7 +42,6 @@ const signIn = async (req: Request, res: Response) => {
     });
   }
 };
-
 export const AuthController = {
   registerPatient,
   signIn,

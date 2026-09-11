@@ -29,52 +29,66 @@ const registerPatient = async (payload: IRegisterPatientPayload) => {
     throw new Error("Failed to create user");
   }
 
-  console.log("user regitration", data);
+  console.log("user registration", data);
 
-  const patient = await prisma.$transaction(async (tx) => {
-    const patientTx = await tx.patient.create({
-      data: {
-        userId: data.user.id,
-        name,
-        email,
-      },
+  try {
+    const patient = await prisma.$transaction(async (tx) => {
+      const patientTx = await tx.patient.create({
+        data: {
+          userId: data.user.id,
+          name,
+          email,
+        },
+      });
+
+      return patientTx;
     });
 
-    return patientTx;
-  });
-
-  return {
-    ...data,
-    patient,
-  };
+    return {
+      ...data,
+      patient,
+    };
+  } catch (error) {
+    console.error("Error creating patient:", error);
+    await prisma.user.delete({
+      where: {
+        id: data.user.id,
+      },
+    });
+    throw new Error("Failed to create patient");
+  }
 };
 
 // login
 const signIn = async (payload: ISignInPayload) => {
   const { email, password } = payload;
 
-  const data = await auth.api.signInEmail({
+  const result = await auth.api.signInEmail({
+    returnHeaders: true,
     body: {
       email,
       password,
     },
   });
 
-  if (!data.user) {
+  const { headers, response } = result;
+
+  if (!response.user) {
     throw new Error("Login failed");
   }
 
-  if (data.user.status === UserStatus.BLOCKED) {
+  if (response.user.status === UserStatus.BLOCKED) {
     throw new Error("User is blocked");
   }
 
-  if (data.user.status === UserStatus.DELETED) {
+  if (response.user.status === UserStatus.DELETED) {
     throw new Error("User is deleted");
   }
 
-  console.log(data);
-
-  return data;
+  return {
+    headers,
+    data: response,
+  };
 };
 
 export const AuthService = {

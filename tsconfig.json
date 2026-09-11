@@ -44,6 +44,7 @@
     "esModuleInterop": true,
     "ignoreDeprecations": "6.0"
   },
-  "include": ["src/**/*", "node"],
+  // "include": ["src/**/*", "node", "prisma.config.ts"],
+  "include": ["src", "prisma.config.ts"],
   "exclude": ["node_modules", "dist"]
 }
