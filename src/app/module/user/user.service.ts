@@ -20,10 +20,16 @@ export const createDoctor = async (payload: ICreateDoctorPayload) => {
   const userExists = await prisma.user.findUnique({
     where: {
       email: payload.doctor.email,
+      registrationNumber: payload.doctor.registrationNumber,
     },
   });
   if (userExists) {
     throw new Error(`User with email ${payload.doctor.email} already exists`);
+  }
+  if (userExists) {
+    throw new Error(
+      `User with registration number ${payload.doctor.registrationNumber} already exists`,
+    );
   }
 
   const userData = await auth.api.signUpEmail({

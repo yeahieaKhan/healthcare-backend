@@ -10,7 +10,6 @@ interface EvnConfig {
   BETTER_AUTH_URL: string;
 }
 
-
 const loadEnvVariables = (): EvnConfig => {
   const requiredEnvVars = [
     "NODE_ENV",
@@ -26,7 +25,6 @@ const loadEnvVariables = (): EvnConfig => {
     }
   });
 
-    
   return {
     NODE_ENV: process.env.NODE_ENV || "development",
     PORT: process.env.PORT || 3000,
