@@ -3,9 +3,16 @@ import { envVars } from "../../config/env";
 import z from "zod";
 import status from "http-status";
 
-interface TErrorSources {
+export interface TErrorSources {
   path: string;
   message: string;
+}
+
+export interface TErrorResponse {
+  success: boolean;
+  message: string;
+  errorSources?: TErrorSources[];
+  error?: unknown;
 }
 
 export const globalErrorHandler = (
@@ -13,13 +20,13 @@ export const globalErrorHandler = (
   req: Request,
   res: Response,
   next: NextFunction,
-) => {
+): TErrorResponse => {
   console.error(err);
 
   if (envVars.NODE_ENV === "development") {
     console.log("Error from Global Error Handler:", err);
   }
-  const errorSource: TErrorSources[] = [];
+  let errorSource: TErrorResponse = [];
   let statusCode: number = 500;
   let message: string = "Internal Server Error";
 
@@ -34,11 +41,12 @@ export const globalErrorHandler = (
     });
   }
 
-  res.status(statusCode).json({
+  const errorResponse: TErrorResponse = {
     success: false,
     message: message,
-
-    errorSources: errorSource,
+    errorSources,
     error: envVars.NODE_ENV === "development" ? err : undefined,
-  });
+  };
+
+  res.status(statusCode).json(errorResponse);
 };
