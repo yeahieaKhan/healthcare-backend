@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from "express";
-import { envVars } from "../../config/env";
+import { envVars } from "../config/env";
 import z from "zod";
 import { TErrorResponse, TErrorSources } from "../interfaces/error.interface";
-import { handleZodError } from "../../errorHelpers/handleZodError";
+import { handleZodError } from "../errorHelpers/handleZodError";
 
 export const globalErrorHandler = (
   err: any,
