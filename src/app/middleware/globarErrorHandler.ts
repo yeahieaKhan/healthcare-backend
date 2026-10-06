@@ -15,24 +15,41 @@ export const globalErrorHandler = (
   if (envVars.NODE_ENV === "development") {
     console.log("Error from Global Error Handler:", err);
   }
-  let errorSource: TErrorSources[] = [];
+  let errorSources: TErrorSources[] = [];
   let statusCode: number = 500;
   let message: string = "Internal Server Error";
+
+  //same
+  // if (err instanceof z.ZodError) {
+  //   const simplifiedError = handleZodError(err);
+  //   statusCode = simplifiedError.statusCode as number;
+
+  //   message = simplifiedError.message;
+  //   err.issues.forEach((issue) => {
+  //     errorSource.push(...simplifiedError.errorSources!);
+  //   });
+  // }
 
   if (err instanceof z.ZodError) {
     const simplifiedError = handleZodError(err);
     statusCode = simplifiedError.statusCode as number;
 
-    message = simplifiedError.message;
-    err.issues.forEach((issue) => {
-      errorSource.push(...simplifiedError.errorSources!);
-    });
+    message = "ami ami zod error";
+    errorSources = [...simplifiedError.errorSources];
   }
+
+  // if (err instanceof Error) {
+  //   const simplifiedError = handleZodError(err);
+  //   statusCode = simplifiedError.statusCode as number;
+
+  //   message = "ami ami zod error";
+  //   errorSources = [...simplifiedError.errorSources];
+  // }
 
   const errorResponse: TErrorResponse = {
     success: false,
     message: message,
-    errorSources: errorSource,
+    errorSources: errorSources,
     error: envVars.NODE_ENV === "development" ? err : undefined,
   };
 
