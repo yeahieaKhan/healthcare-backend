@@ -1,4 +1,5 @@
 import { Role, UserStatus } from "../../../../generated/prisma/client";
+import AppError from "../../errorHelpers/AppError";
 import { auth } from "../../lib/auth";
 import { prisma } from "../../lib/prisma";
 
@@ -26,7 +27,7 @@ const registerPatient = async (payload: IRegisterPatientPayload) => {
   });
 
   if (!data.user) {
-    throw new Error("Failed to create user");
+    throw new AppError(404,"Failed to create user");
   }
 
   console.log("user registration", data);
@@ -55,7 +56,7 @@ const registerPatient = async (payload: IRegisterPatientPayload) => {
         id: data.user.id,
       },
     });
-    throw new Error("Failed to create patient");
+    throw new AppError(404, "Failed to create patient");
   }
 };
 
@@ -74,15 +75,15 @@ const signIn = async (payload: ISignInPayload) => {
   const { headers, response } = result;
 
   if (!response.user) {
-    throw new Error("Login failed");
+    throw new AppError(404, "Login failed");
   }
 
   if (response.user.status === UserStatus.BLOCKED) {
-    throw new Error("User is blocked");
+    throw new AppError(403, "User is blocked");
   }
 
   if (response.user.status === UserStatus.DELETED) {
-    throw new Error("User is deleted");
+    throw new AppError(404, "User is deleted");
   }
 
   return {

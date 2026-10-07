@@ -1,3 +1,4 @@
+import AppError from "../../errorHelpers/AppError";
 import { prisma } from "../../lib/prisma";
 
 const getAllDoctors = async () => {
@@ -16,7 +17,7 @@ const getAllDoctors = async () => {
     return doctors;
   } catch (error) {
     console.error("Error fetching doctors:", error);
-    throw new Error("Failed to fetch doctors");
+    throw new AppError(500, "Failed to fetch doctors");
   }
 };
 

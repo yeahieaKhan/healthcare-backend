@@ -1,4 +1,5 @@
 import { Prisma, Specialty } from "../../../../generated/prisma/client";
+import AppError from "../../errorHelpers/AppError";
 import { prisma } from "../../lib/prisma";
 
 const createSpecialty = async (
@@ -11,7 +12,7 @@ const createSpecialty = async (
   });
 
   if (existingSpecialty) {
-    throw new Error("Specialty already exists");
+    throw new AppError(400, "Specialty already exists");
   }
 
   return await prisma.specialty.create({
@@ -30,7 +31,7 @@ const getAllSpecialty = async () => {
     return result;
   } catch (error) {
     console.error("Error fetching specialties:", error);
-    throw new Error("Failed to fetch specialties");
+    throw new AppError(500, "Failed to fetch specialties");
   }
 };
 
@@ -45,7 +46,7 @@ const singleSpecialty = async (id: string) => {
     return result;
   } catch (error) {
     console.error("Error fetching specialty:", error);
-    throw new Error("Failed to fetch specialty");
+    throw new AppError(500, "Failed to fetch specialty");
   }
 };
 
@@ -64,7 +65,7 @@ const updateSpecialty = async (
     return result;
   } catch (error) {
     console.error("Something went wrong!");
-    throw new Error("Something went wrong!");
+    throw new AppError(500, "Something went wrong!");
   }
 };
 

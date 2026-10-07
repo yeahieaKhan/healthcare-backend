@@ -3,6 +3,7 @@ import { envVars } from "../config/env";
 import z, { string } from "zod";
 import { TErrorResponse, TErrorSources } from "../interfaces/error.interface";
 import { handleZodError } from "../errorHelpers/handleZodError";
+import AppError from "../errorHelpers/AppError";
 
 export const globalErrorHandler = (
   err: any,
@@ -37,8 +38,17 @@ export const globalErrorHandler = (
 
     message = simplifiedError.message;
     errorSources = [...simplifiedError.errorSources];
-    stack=err.stack
-
+    stack = err.stack;
+  } else if (err instanceof AppError) {
+    statusCode = err.statusCode;
+    message = err.message;
+    stack = err.stack;
+    errorSources = [
+      {
+        path: "",
+        message: err.message,
+      },
+    ];
   } else if (err instanceof Error) {
     statusCode = 500;
     message = err.message;
