@@ -9,4 +9,5 @@ export interface TErrorResponse {
   errorSources: TErrorSources[];
   error?: unknown;
   statusCode?: number;
+  stack?: string;
 }

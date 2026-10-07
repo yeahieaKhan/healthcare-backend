@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { envVars } from "../config/env";
-import z from "zod";
+import z, { string } from "zod";
 import { TErrorResponse, TErrorSources } from "../interfaces/error.interface";
 import { handleZodError } from "../errorHelpers/handleZodError";
 
@@ -18,6 +18,7 @@ export const globalErrorHandler = (
   let errorSources: TErrorSources[] = [];
   let statusCode: number = 500;
   let message: string = "Internal Server Error";
+  let stack: string | undefined = undefined;
 
   //same
   // if (err instanceof z.ZodError) {
@@ -34,22 +35,21 @@ export const globalErrorHandler = (
     const simplifiedError = handleZodError(err);
     statusCode = simplifiedError.statusCode as number;
 
-    message = "ami ami zod error";
+    message = simplifiedError.message;
     errorSources = [...simplifiedError.errorSources];
+    stack=err.stack
+
+  } else if (err instanceof Error) {
+    statusCode = 500;
+    message = err.message;
+    stack = err.stack;
   }
-
-  // if (err instanceof Error) {
-  //   const simplifiedError = handleZodError(err);
-  //   statusCode = simplifiedError.statusCode as number;
-
-  //   message = "ami ami zod error";
-  //   errorSources = [...simplifiedError.errorSources];
-  // }
 
   const errorResponse: TErrorResponse = {
     success: false,
     message: message,
     errorSources: errorSources,
+
     error: envVars.NODE_ENV === "development" ? err : undefined,
   };
 
