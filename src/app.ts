@@ -4,6 +4,7 @@ import cors from "cors";
 import { IndexRouter } from "./app/routes";
 import { globalErrorHandler } from "./app/middleware/globarErrorHandler";
 import notFound from "./app/middleware/notFound";
+import cookieParser from "cookie-parser";
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.use(
 );
 
 app.use(express.json());
+app.use(cookieParser());
 
 app.use("/api/v1", IndexRouter);
 
