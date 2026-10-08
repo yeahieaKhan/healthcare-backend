@@ -1,12 +1,12 @@
 import { NextFunction, Request, Response } from "express";
 import { envVars } from "../config/env";
-import z, { string } from "zod";
+import z from "zod";
 import { TErrorResponse, TErrorSources } from "../interfaces/error.interface";
 import { handleZodError } from "../errorHelpers/handleZodError";
 import AppError from "../errorHelpers/AppError";
 
 export const globalErrorHandler = (
-  err: any,
+  err: unknown,
   req: Request,
   res: Response,
   next: NextFunction,
@@ -42,6 +42,7 @@ export const globalErrorHandler = (
     statusCode = 500;
     message = err.message;
     stack = err.stack;
+    errorSources;
   }
 
   const errorResponse: TErrorResponse = {

@@ -1,9 +1,14 @@
 import { Request, Response } from "express";
 import { AuthService } from "./auth.service";
 import { tokenUtils } from "../../utils/token";
+import ms, { StringValue } from "ms";
+import { envVars } from "../../config/env";
 
 const registerPatient = async (req: Request, res: Response) => {
   try {
+    const maxAge = ms(envVars.ACCESS_TOKEN_EXPIRES_IN as StringValue);
+    console.log({ maxAge });
+
     const data = req.body;
     const result = await AuthService.registerPatient(data);
     console.log("result form user registration ", result);
