@@ -1,15 +1,26 @@
 import { Request, Response } from "express";
 import { AuthService } from "./auth.service";
+import { tokenUtils } from "../../utils/token";
 
 const registerPatient = async (req: Request, res: Response) => {
   try {
     const data = req.body;
     const result = await AuthService.registerPatient(data);
     console.log("result form user registration ", result);
+
+    const { accessToken, refreshToken, token, ...rest } = result;
+    tokenUtils.setAccessTokenCookie(res, accessToken);
+    tokenUtils.setRefreshTokenCookie(res, refreshToken);
+    tokenUtils.setBetterAuthTokenCookie(res, token as string);
     res.status(201).send({
       success: true,
       message: "Patient create successfully",
-      data: result,
+      data: {
+        token,
+        accessToken,
+        refreshToken,
+        ...rest,
+      },
     });
   } catch (error) {
     res.status(500).send({
@@ -23,17 +34,20 @@ const registerPatient = async (req: Request, res: Response) => {
 const signIn = async (req: Request, res: Response) => {
   try {
     const result = await AuthService.signIn(req.body);
-
-    const setCookies = result.headers.getSetCookie();
-
-    setCookies.forEach((cookie) => {
-      res.append("Set-Cookie", cookie);
-    });
-
+    console.log("result form user login ", result);
+    const { accessToken, refreshToken, token, ...rest } = result;
+    tokenUtils.setAccessTokenCookie(res, accessToken);
+    tokenUtils.setRefreshTokenCookie(res, refreshToken);
+    tokenUtils.setBetterAuthTokenCookie(res, token);
     res.status(200).json({
       success: true,
       message: "Login successful",
-      data: result.data,
+      data: {
+        token,
+        accessToken,
+        refreshToken,
+        ...rest,
+      },
     });
   } catch (error: any) {
     res.status(401).json({

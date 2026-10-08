@@ -21,17 +21,6 @@ export const globalErrorHandler = (
   let message: string = "Internal Server Error";
   let stack: string | undefined = undefined;
 
-  //same
-  // if (err instanceof z.ZodError) {
-  //   const simplifiedError = handleZodError(err);
-  //   statusCode = simplifiedError.statusCode as number;
-
-  //   message = simplifiedError.message;
-  //   err.issues.forEach((issue) => {
-  //     errorSource.push(...simplifiedError.errorSources!);
-  //   });
-  // }
-
   if (err instanceof z.ZodError) {
     const simplifiedError = handleZodError(err);
     statusCode = simplifiedError.statusCode as number;

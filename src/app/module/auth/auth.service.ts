@@ -2,6 +2,7 @@ import { Role, UserStatus } from "../../../../generated/prisma/client";
 import AppError from "../../errorHelpers/AppError";
 import { auth } from "../../lib/auth";
 import { prisma } from "../../lib/prisma";
+import { tokenUtils } from "../../utils/token";
 
 interface IRegisterPatientPayload {
   name: string;
@@ -27,7 +28,7 @@ const registerPatient = async (payload: IRegisterPatientPayload) => {
   });
 
   if (!data.user) {
-    throw new AppError(404,"Failed to create user");
+    throw new AppError(404, "Failed to create user");
   }
 
   console.log("user registration", data);
@@ -45,8 +46,29 @@ const registerPatient = async (payload: IRegisterPatientPayload) => {
       return patientTx;
     });
 
+    const accessToken = tokenUtils.getAccessToken({
+      userId: data.user.id,
+      role: data.user.role,
+      name: data.user.name,
+      email: data.user.email,
+      status: data.user.status,
+      emailVerified: data.user.emailVerified,
+    });
+
+    const refreshToken = tokenUtils.getRefreshToken({
+      userId: data.user.id,
+      role: data.user.role,
+      name: data.user.name,
+      email: data.user.email,
+      status: data.user.status,
+      emailVerified: data.user.emailVerified,
+    });
+
     return {
       ...data,
+
+      accessToken,
+      refreshToken,
       patient,
     };
   } catch (error) {
@@ -64,31 +86,49 @@ const registerPatient = async (payload: IRegisterPatientPayload) => {
 const signIn = async (payload: ISignInPayload) => {
   const { email, password } = payload;
 
-  const result = await auth.api.signInEmail({
-    returnHeaders: true,
+  const data = await auth.api.signInEmail({
     body: {
       email,
       password,
     },
   });
 
-  const { headers, response } = result;
+  // const { headers, response } = result;
 
-  if (!response.user) {
+  if (!data.user) {
     throw new AppError(404, "Login failed");
   }
 
-  if (response.user.status === UserStatus.BLOCKED) {
+  if (data.user.status === UserStatus.BLOCKED) {
     throw new AppError(403, "User is blocked");
   }
 
-  if (response.user.status === UserStatus.DELETED) {
+  if (data.user.status === UserStatus.DELETED) {
     throw new AppError(404, "User is deleted");
   }
 
+  const accessToken = tokenUtils.getAccessToken({
+    userId: data.user.id,
+    role: data.user.role,
+    name: data.user.name,
+    email: data.user.email,
+    status: data.user.status,
+    emailVerified: data.user.emailVerified,
+  });
+
+  const refreshToken = tokenUtils.getRefreshToken({
+    userId: data.user.id,
+    role: data.user.role,
+    name: data.user.name,
+    email: data.user.email,
+    status: data.user.status,
+    emailVerified: data.user.emailVerified,
+  });
+
   return {
-    headers,
-    data: response,
+    ...data,
+    accessToken,
+    refreshToken,
   };
 };
 
