@@ -4,6 +4,7 @@ import { authRouter } from "../module/auth/auth.router";
 import { UserRouter } from "../module/user/user.router";
 import { DoctorRouter } from "../module/doctor/doctor.router";
 
+
 const router = Router();
 
 router.use("/auth", authRouter);
