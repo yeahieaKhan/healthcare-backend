@@ -1,37 +1,18 @@
 import { NextFunction, Request, Response, Router } from "express";
 import { SpecialtyController } from "./specilty.controller";
-import { cookieUtils } from "../../utils/cookie";
+import { CookieUtils } from "../../utils/cookie";
 import AppError from "../../errorHelpers/AppError";
 import { jwtUtils } from "../../utils/jwt";
 import { envVars } from "../../config/env";
+import { checkAuth } from "../../middleware/checkAuth";
+import { Role } from "../../../../generated/prisma/enums";
 
 const router = Router();
 
 router.get(
   "/all-specialty",
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const accessToken = cookieUtils.getCookie(req, "accessToken");
-      if (!accessToken) {
-        throw new AppError(404, "Unauthoried access");
-      }
 
-      const verifiedToken = jwtUtils.verifyToken(
-        accessToken,
-        envVars.ACCESS_TOKEN_SECRET,
-      );
-
-      if (!verifiedToken) {
-        throw new AppError(404, " Unauthried access");
-      }
-      if (verifiedToken.data!.role !== "ADMIN") {
-        throw new AppError(404, "Unathoried access");
-      }
-      next();
-    } catch (error) {
-      next(error);
-    }
-  },
+  checkAuth(Role.PATIENT),
   SpecialtyController.getAllSpecialty,
 );
 router.get("/all-specialty/:id", SpecialtyController.getSingleSpecialty);
