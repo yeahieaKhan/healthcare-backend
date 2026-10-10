@@ -53,3 +53,20 @@ export const createDoctorZodSchema = z.object({
     .array(z.uuid("specialties   ID must be an array of strings"))
     .min(1, "At least one specialty is required"),
 });
+
+export const createAdminZodSchema = z.object({
+  password: z
+    .string("Password requird ")
+    .min(5, "Minimum 5 caracter")
+    .max(20, "max 20"),
+  admin: z.object({
+    name: z.string("Name is requird"),
+    email: z.string("Invalid email"),
+    phoneNumber: z.string("Number is requird").min(11, "Number is min 11"),
+    profilePhoto: z.url("Profile photo must be a valid URL").optional(),
+  }),
+  role: z.enum(
+    ["ADMIN", "SUPER_ADMIN"],
+    "Role must be either ADMIN or SUPER_ADMIN",
+  ),
+});

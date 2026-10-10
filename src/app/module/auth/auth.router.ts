@@ -7,6 +7,10 @@ const router = Router();
 router.post("/registration", AuthController.registerPatient);
 router.post("/signIn", AuthController.signIn);
 
-router.get("/getMe", checkAuth(Role.PATIENT), AuthController.getMeController);
+router.get(
+  "/getMe",
+  checkAuth(Role.PATIENT, Role.DOCTOR, Role.ADMIN, Role.SUPER_ADMIN),
+  AuthController.getMeController,
+);
 
 export const authRouter = router;

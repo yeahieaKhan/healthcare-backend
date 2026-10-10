@@ -19,3 +19,14 @@ export interface ICreateDoctorPayload {
   };
   specialties: string;
 }
+
+export interface ICreatedAdminPayload {
+  password: string;
+  admin: {
+    name: string;
+    email: string;
+    profilePhoto?: string;
+    phoneNumber?: string;
+  };
+  role: "ADMIN" | "SUPER_ADMIN";
+}
