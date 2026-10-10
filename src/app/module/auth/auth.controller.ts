@@ -3,6 +3,7 @@ import { AuthService } from "./auth.service";
 import { tokenUtils } from "../../utils/token";
 import ms, { StringValue } from "ms";
 import { envVars } from "../../config/env";
+import { success } from "zod";
 
 const registerPatient = async (req: Request, res: Response) => {
   try {
@@ -61,7 +62,27 @@ const signIn = async (req: Request, res: Response) => {
     });
   }
 };
+
+// const get me controller
+
+const getMeController = async (req: Request, res: Response) => {
+  try {
+    const user = req.user;
+
+    const result = await AuthService.getMe(user);
+
+    res.status(200).json({
+      success: true,
+      message: "User profile retrieved successfully",
+      data: result,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 export const AuthController = {
   registerPatient,
   signIn,
+  getMeController,
 };

@@ -1,5 +1,6 @@
 import { Role, UserStatus } from "../../../../generated/prisma/client";
 import AppError from "../../errorHelpers/AppError";
+import { IRequestUser } from "../../interfaces/requestUser";
 import { auth } from "../../lib/auth";
 import { prisma } from "../../lib/prisma";
 import { tokenUtils } from "../../utils/token";
@@ -132,7 +133,31 @@ const signIn = async (payload: ISignInPayload) => {
   };
 };
 
+// get me service
+
+const getMe = (user: IRequestUser) => {
+  const isUserExists = prisma.user.findUnique({
+    where: {
+      id: user.userId,
+    },
+    include: {
+      patient: true,
+      doctor: {
+        include: {
+          specialties: true,
+        },
+      },
+    },
+  });
+
+  if (!isUserExists) {
+    throw new AppError(404, "User not found!");
+  }
+  return isUserExists;
+};
+
 export const AuthService = {
   registerPatient,
   signIn,
+  getMe,
 };
