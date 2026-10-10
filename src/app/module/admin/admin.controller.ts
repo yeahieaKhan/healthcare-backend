@@ -13,11 +13,30 @@ const getAllAdminAndSuperAdmin = async (req: Request, res: Response) => {
     res.status(200).json({
       success: true,
       message: "Admin fetch successfully",
-      error: error.message,
+      error: error,
+    });
+  }
+};
+
+const getSingleAdmin = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  try {
+    const result = await AdminService.getSingleAdmin(id as string);
+    res.status(200).json({
+      success: true,
+      message: "Admin fetch successfully",
+      data: result,
+    });
+  } catch (error) {
+    res.status(200).json({
+      success: true,
+      message: "Admin fetch successfully",
+      error: error,
     });
   }
 };
 
 export const AdminController = {
   getAllAdminAndSuperAdmin,
+  getSingleAdmin,
 };

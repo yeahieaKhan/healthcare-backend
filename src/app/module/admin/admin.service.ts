@@ -9,6 +9,16 @@ const getAllAdminAndSuperAdmin = async () => {
   return result;
 };
 
+const getSingleAdmin = async (id: string) => {
+  const result = await prisma.admin.findUnique({
+    where: {
+      id,
+    },
+  });
+  return result;
+};
+
 export const AdminService = {
   getAllAdminAndSuperAdmin,
+  getSingleAdmin,
 };

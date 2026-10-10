@@ -15,7 +15,7 @@ const createDoctor = async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       message: "Failed to create doctor",
-      error: error.message,
+      error: error,
     });
   }
 };
