@@ -1,4 +1,6 @@
+import { UserStatus } from "../../../../generated/prisma/enums";
 import AppError from "../../errorHelpers/AppError";
+import { IRequestUser } from "../../interfaces/requestUser";
 import { prisma } from "../../lib/prisma";
 import { IUpdatedAdminPayload } from "./admin.interface";
 
@@ -42,8 +44,62 @@ const updatedAdmin = async (id: string, payload: IUpdatedAdminPayload) => {
   return result;
 };
 
+// doctor deleted
+
+const deleteAdmin = async (id: string, user: IRequestUser) => {
+  const isAdminExist = await prisma.admin.findUnique({
+    where: {
+      id,
+    },
+  });
+
+  if (!isAdminExist) {
+    throw new AppError(404, "Admin or Super admin not found!");
+  }
+  if (isAdminExist.id === user.userId) {
+    throw new AppError(404, "You cannot delete yourself");
+  }
+
+  const result = await prisma.$transaction(async (tx) => {
+    await tx.admin.update({
+      where: { id },
+      data: {
+        isDeleted: true,
+        deletedAt: new Date(),
+      },
+    });
+
+    const updateUser = await tx.user.update({
+      where: { id: isAdminExist.userId },
+      data: {
+        isDeleted: true,
+        deletedAt: new Date(),
+        status: UserStatus.DELETED,
+      },
+    });
+
+    console.log("user updated", updateUser);
+
+    await tx.session.deleteMany({
+      where: {
+        userId: isAdminExist.userId,
+      },
+    });
+    await tx.account.deleteMany({
+      where: {
+        userId: isAdminExist.userId,
+      },
+    });
+
+    const admin = await getSingleAdmin(id);
+    return admin;
+  });
+  return result;
+};
+
 export const AdminService = {
   getAllAdminAndSuperAdmin,
   getSingleAdmin,
   updatedAdmin,
+  deleteAdmin,
 };

@@ -52,7 +52,7 @@ const updateDoctor = async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       message: true,
-      error: error.message,
+      error: error,
     });
   }
 };

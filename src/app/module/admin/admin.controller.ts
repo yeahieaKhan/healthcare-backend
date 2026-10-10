@@ -56,8 +56,28 @@ const updatedAdmin = async (req: Request, res: Response) => {
   }
 };
 
+const deleteAdmin = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const user = req.user;
+    const result = await AdminService.deleteAdmin(id as string, user);
+    res.status(200).json({
+      success: true,
+      message: "admin deleted successfully",
+      data: result,
+    });
+  } catch (error) {
+    res.status(200).json({
+      success: true,
+      message: "Admin updated failed",
+      error: error,
+    });
+  }
+};
+
 export const AdminController = {
   getAllAdminAndSuperAdmin,
   getSingleAdmin,
   updatedAdmin,
+  deleteAdmin,
 };
