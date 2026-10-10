@@ -1,0 +1,23 @@
+import { Request, Response } from "express";
+import { AdminService } from "./admin.service";
+
+const getAllAdminAndSuperAdmin = async (req: Request, res: Response) => {
+  try {
+    const result = await AdminService.getAllAdminAndSuperAdmin();
+    res.status(200).json({
+      success: true,
+      message: "Admin fetch successfully",
+      data: result,
+    });
+  } catch (error) {
+    res.status(200).json({
+      success: true,
+      message: "Admin fetch successfully",
+      error: error.message,
+    });
+  }
+};
+
+export const AdminController = {
+  getAllAdminAndSuperAdmin,
+};
