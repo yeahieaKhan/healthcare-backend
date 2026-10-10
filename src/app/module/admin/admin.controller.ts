@@ -36,7 +36,28 @@ const getSingleAdmin = async (req: Request, res: Response) => {
   }
 };
 
+const updatedAdmin = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const payload = req.body;
+
+  try {
+    const result = await AdminService.updatedAdmin(id as string, payload);
+    res.status(200).json({
+      success: true,
+      message: "Admin updated successfully",
+      data: result,
+    });
+  } catch (error) {
+    res.status(200).json({
+      success: true,
+      message: "Admin updated failed",
+      error: error,
+    });
+  }
+};
+
 export const AdminController = {
   getAllAdminAndSuperAdmin,
   getSingleAdmin,
+  updatedAdmin,
 };
