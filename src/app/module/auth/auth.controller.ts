@@ -116,9 +116,35 @@ const getRefreshToken = async (req: Request, res: Response) => {
   }
 };
 
+// change password
+
+const changePassword = async (req: Request, res: Response) => {
+  try {
+    const payload = req.body;
+    const betterAuthSessionToken = req.cookies["better-auth.session_token"];
+    console.log(betterAuthSessionToken);
+    const result = await AuthService.changePassword(
+      payload,
+      betterAuthSessionToken,
+    );
+    res.status(201).json({
+      success: true,
+      message: "Password change successfully",
+      data: result,
+    });
+  } catch (error) {
+    res.status(404).json({
+      success: false,
+      message: "Something went wrong",
+      error: error,
+    });
+  }
+};
+
 export const AuthController = {
   registerPatient,
   signIn,
   getMeController,
   getRefreshToken,
+  changePassword,
 };
