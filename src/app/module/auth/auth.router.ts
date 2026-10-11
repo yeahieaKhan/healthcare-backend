@@ -16,7 +16,7 @@ router.get(
 router.post("/refresh-token", AuthController.getRefreshToken);
 router.post(
   "/change-password",
-  checkAuth(Role.ADMIN, Role.DOCTOR, Role.PATIENT),
+  checkAuth(Role.ADMIN, Role.DOCTOR, Role.PATIENT, Role.SUPER_ADMIN),
   AuthController.changePassword,
 );
 

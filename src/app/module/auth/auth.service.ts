@@ -231,6 +231,8 @@ const changePassword = async (
     }),
   });
 
+  console.log("session token from change password", session);
+
   if (!session) {
     throw new AppError(404, "Invalid session token");
   }
@@ -243,7 +245,9 @@ const changePassword = async (
       newPassword,
       revokeOtherSessions: true,
     },
-    headers: new Headers({ Authorization: `Bearer${sessionToken}` }),
+    headers: new Headers({
+      Authorization: `Bearer ${sessionToken}`,
+    }),
   });
   return result;
 };

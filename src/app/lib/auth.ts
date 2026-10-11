@@ -1,9 +1,8 @@
-import { betterAuth, boolean, string } from "better-auth";
+import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
 import { Role, UserStatus } from "../../../generated/prisma/enums";
-import ms, { StringValue } from "ms";
-import { envVars } from "../config/env";
+
 import { bearer } from "better-auth/plugins";
 // If your Prisma file is located elsewhere, you can change the path
 
