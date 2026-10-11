@@ -29,7 +29,7 @@ const setAccessTokenCookie = (res: Response, token: string) => {
     secure: true,
     sameSite: "none",
     path: "/",
-    maxAge: 60 * 60 * 60 * 24, // Convert to number
+    maxAge: 60 * 60 * 1000 * 24, // Convert to number
   });
 };
 
@@ -39,18 +39,17 @@ const setRefreshTokenCookie = (res: Response, token: string) => {
     secure: true,
     sameSite: "none",
     path: "/",
-    maxAge: 60 * 60 * 60 * 24 * 7, // Convert to number
+    maxAge: 60 * 60 * 24 * 1000 * 7, // Convert to number
   });
 };
 
 const setBetterAuthTokenCookie = (res: Response, token: string) => {
-  const maxAge = ms(envVars.ACCESS_TOKEN_EXPIRES_IN as StringValue);
   CookieUtils.setCookie(res, "better-auth.session_token", token, {
     httpOnly: true,
     secure: true,
     sameSite: "none",
     path: "/",
-    maxAge: Number(maxAge),
+    maxAge: 60 * 60 * 24 * 1000,
   });
 };
 

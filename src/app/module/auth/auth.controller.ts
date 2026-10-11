@@ -3,7 +3,8 @@ import { AuthService } from "./auth.service";
 import { tokenUtils } from "../../utils/token";
 import ms, { StringValue } from "ms";
 import { envVars } from "../../config/env";
-import { success } from "zod";
+import { json, success } from "zod";
+import AppError from "../../errorHelpers/AppError";
 
 const registerPatient = async (req: Request, res: Response) => {
   try {
@@ -81,8 +82,43 @@ const getMeController = async (req: Request, res: Response) => {
   }
 };
 
+// refresh token controller
+
+const getRefreshToken = async (req: Request, res: Response) => {
+  try {
+    const refreshToken = req.cookies.refreshToken;
+    const betterAuthSessionToke = req.cookies["better-auth.session_token"];
+
+    if (!refreshToken) {
+      throw new AppError(404, "Refresh token is missing");
+    }
+    const result = await AuthService.getNewToken(
+      refreshToken,
+      betterAuthSessionToke,
+    );
+
+    const { accessToken, refreshToken: newRefreshToken, sessionToken } = result;
+    tokenUtils.setAccessTokenCookie(res, accessToken);
+    tokenUtils.setRefreshTokenCookie(res, newRefreshToken);
+    tokenUtils.setBetterAuthTokenCookie(res, sessionToken);
+
+    res.status(201).json({
+      success: true,
+      message: "Refresh token fetched",
+      data: result,
+    });
+  } catch (error) {
+    res.status(201).json({
+      success: true,
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
 export const AuthController = {
   registerPatient,
   signIn,
   getMeController,
+  getRefreshToken,
 };
