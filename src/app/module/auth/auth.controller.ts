@@ -127,6 +127,12 @@ const changePassword = async (req: Request, res: Response) => {
       payload,
       betterAuthSessionToken,
     );
+
+    const { accessToken, refreshToken, token } = result;
+    tokenUtils.setAccessTokenCookie(res, accessToken);
+    tokenUtils.setRefreshTokenCookie(res, refreshToken);
+    tokenUtils.setBetterAuthTokenCookie(res, token as string);
+
     res.status(201).json({
       success: true,
       message: "Password change successfully",
