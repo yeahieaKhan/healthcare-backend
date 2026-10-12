@@ -5,6 +5,7 @@ import ms, { StringValue } from "ms";
 import { envVars } from "../../config/env";
 import { json, success } from "zod";
 import AppError from "../../errorHelpers/AppError";
+import { CookieUtils } from "../../utils/cookie";
 
 const registerPatient = async (req: Request, res: Response) => {
   try {
@@ -122,7 +123,6 @@ const changePassword = async (req: Request, res: Response) => {
   try {
     const payload = req.body;
     const betterAuthSessionToken = req.cookies["better-auth.session_token"];
-    console.log("betterAuthSessionToken", betterAuthSessionToken);
     const result = await AuthService.changePassword(
       payload,
       betterAuthSessionToken,
@@ -147,10 +147,46 @@ const changePassword = async (req: Request, res: Response) => {
   }
 };
 
+const logOutUser = async (req: Request, res: Response) => {
+  try {
+    const betterAuthSessionToken = req.cookies["better-auth.session_token"];
+    const result = await AuthService.logOutUser(betterAuthSessionToken);
+
+    CookieUtils.clearCookie(res, "accessToken", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+    });
+    CookieUtils.clearCookie(res, "refreshToken", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+    });
+    CookieUtils.clearCookie(res, "better-auth.session_token", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+    });
+
+    res.status(201).json({
+      success: true,
+      message: "Log out successfully",
+      data: result,
+    });
+  } catch (error) {
+    res.status(404).json({
+      success: false,
+      message: "Something went wrong",
+      error: error,
+    });
+  }
+};
+
 export const AuthController = {
   registerPatient,
   signIn,
   getMeController,
   getRefreshToken,
   changePassword,
+  logOutUser,
 };
