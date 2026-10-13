@@ -8,6 +8,7 @@ import { prisma } from "../../lib/prisma";
 import { jwtUtils } from "../../utils/jwt";
 import { tokenUtils } from "../../utils/token";
 import { IChangePasswordPayload } from "./auth.interface";
+import { userAc } from "better-auth/plugins/admin/access";
 
 interface IRegisterPatientPayload {
   name: string;
@@ -288,6 +289,26 @@ const logOutUser = async (sessionToken: string) => {
   return result;
 };
 
+const verifyEmail = async (email: string, otp: string) => {
+  const result = await auth.api.verifyEmailOTP({
+    body: {
+      email,
+      otp,
+    },
+  });
+
+  if (result.status && !result.user.emailVerified) {
+    await prisma.user.update({
+      where: {
+        email,
+      },
+      data: {
+        emailVerified: true,
+      },
+    });
+  }
+};
+
 export const AuthService = {
   registerPatient,
   signIn,
@@ -295,4 +316,5 @@ export const AuthService = {
   getNewToken,
   changePassword,
   logOutUser,
+  verifyEmail,
 };

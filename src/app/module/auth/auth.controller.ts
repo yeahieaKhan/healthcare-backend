@@ -112,7 +112,7 @@ const getRefreshToken = async (req: Request, res: Response) => {
     res.status(201).json({
       success: true,
       message: "Something went wrong",
-      error: error.message,
+      error: error,
     });
   }
 };
@@ -182,6 +182,23 @@ const logOutUser = async (req: Request, res: Response) => {
   }
 };
 
+const verifyEmail = async (req: Request, res: Response) => {
+  try {
+    const { email, otp } = req.body;
+    await AuthService.verifyEmail(email, otp);
+    res.status(201).json({
+      success: true,
+      message: "Opt send   successfully",
+    });
+  } catch (error) {
+    res.status(404).json({
+      success: false,
+      message: "Something went wrong",
+      error: error,
+    });
+  }
+};
+
 export const AuthController = {
   registerPatient,
   signIn,
@@ -189,4 +206,5 @@ export const AuthController = {
   getRefreshToken,
   changePassword,
   logOutUser,
+  verifyEmail,
 };
