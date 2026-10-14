@@ -9,6 +9,7 @@ import { jwtUtils } from "../../utils/jwt";
 import { tokenUtils } from "../../utils/token";
 import { IChangePasswordPayload } from "./auth.interface";
 import { userAc } from "better-auth/plugins/admin/access";
+import { email } from "zod";
 
 interface IRegisterPatientPayload {
   name: string;
@@ -309,6 +310,67 @@ const verifyEmail = async (email: string, otp: string) => {
   }
 };
 
+const forgerPassword = async (email: string) => {
+  const isUserExists = await prisma.user.findUnique({
+    where: {
+      email,
+    },
+  });
+
+  console.log(isUserExists);
+  if (!isUserExists) {
+    throw new AppError(500, "User not found");
+  }
+  if (!isUserExists.emailVerified) {
+    throw new AppError(500, "Email not varifed");
+  }
+  if (!isUserExists.deletedAt || isUserExists.status === UserStatus.DELETED) {
+    throw new AppError(500, "User not found");
+  }
+
+  await auth.api.requestPasswordResetEmailOTP({
+    body: {
+      email,
+    },
+  });
+};
+
+const resetPassword = async (
+  email: string,
+  otp: string,
+  newPassword: string,
+) => {
+  const isUserExists = await prisma.user.findUnique({
+    where: {
+      email,
+    },
+  });
+
+  if (!isUserExists) {
+    throw new AppError(500, "User not found");
+  }
+  if (!isUserExists.emailVerified) {
+    throw new AppError(500, "Email not varifed");
+  }
+  if (!isUserExists.deletedAt || isUserExists.status === UserStatus.DELETED) {
+    throw new AppError(500, "User not found");
+  }
+
+  await auth.api.resetPasswordEmailOTP({
+    body: {
+      email,
+      otp,
+      password: newPassword,
+    },
+  });
+
+  await prisma.session.deleteMany({
+    where: {
+      userId: isUserExists.id,
+    },
+  });
+};
+
 export const AuthService = {
   registerPatient,
   signIn,
@@ -317,4 +379,6 @@ export const AuthService = {
   changePassword,
   logOutUser,
   verifyEmail,
+  forgerPassword,
+  resetPassword,
 };

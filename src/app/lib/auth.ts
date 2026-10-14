@@ -5,6 +5,7 @@ import { Role, UserStatus } from "../../../generated/prisma/enums";
 
 import { bearer, emailOTP } from "better-auth/plugins";
 import { sendEmail } from "../utils/email";
+import { name } from "ejs";
 // If your Prisma file is located elsewhere, you can change the path
 
 export const auth = betterAuth({
@@ -60,6 +61,24 @@ export const auth = betterAuth({
             sendEmail({
               to: email,
               subject: "verify your email",
+              templateName: "otp",
+              templateData: {
+                name: user.name,
+                otp,
+              },
+            });
+          }
+        }
+        if (type === "forget-password") {
+          const user = await prisma.user.findUnique({
+            where: {
+              email,
+            },
+          });
+          if (user) {
+            sendEmail({
+              to: email,
+              subject: "Password reset OTP",
               templateName: "otp",
               templateData: {
                 name: user.name,

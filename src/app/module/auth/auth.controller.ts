@@ -199,6 +199,42 @@ const verifyEmail = async (req: Request, res: Response) => {
   }
 };
 
+// forget passowd p assword
+
+const forgetPassword = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+    await AuthService.forgerPassword(email);
+    res.status(201).json({
+      success: true,
+      message: "Forget password successfully",
+    });
+  } catch (error) {
+    res.status(404).json({
+      success: false,
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
+const resetPassword = async (req: Request, res: Response) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+    await AuthService.resetPassword(email, otp, newPassword);
+    res.status(201).json({
+      success: true,
+      message: "Password Reset successfully",
+    });
+  } catch (error) {
+    res.status(404).json({
+      success: false,
+      message: "Something went wrong",
+      error: error,
+    });
+  }
+};
+
 export const AuthController = {
   registerPatient,
   signIn,
@@ -207,4 +243,6 @@ export const AuthController = {
   changePassword,
   logOutUser,
   verifyEmail,
+  forgetPassword,
+  resetPassword,
 };
