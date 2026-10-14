@@ -188,7 +188,7 @@ const verifyEmail = async (req: Request, res: Response) => {
     await AuthService.verifyEmail(email, otp);
     res.status(201).json({
       success: true,
-      message: "Opt send   successfully",
+      message: "Email Verification successfully",
     });
   } catch (error) {
     res.status(404).json({

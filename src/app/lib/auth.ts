@@ -61,7 +61,7 @@ export const auth = betterAuth({
               to: email,
               subject: "verify your email",
               templateName: "otp",
-              temPlateData: {
+              templateData: {
                 name: user.name,
                 otp,
               },
