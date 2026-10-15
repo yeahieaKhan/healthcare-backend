@@ -204,10 +204,14 @@ const verifyEmail = async (req: Request, res: Response) => {
 const forgetPassword = async (req: Request, res: Response) => {
   try {
     const { email } = req.body;
-    await AuthService.forgerPassword(email);
+    console.log("user email in congroller ", email);
+    const result = await AuthService.forgerPassword(email as string);
+    console.log(result);
+
     res.status(201).json({
       success: true,
       message: "Forget password successfully",
+      data: result,
     });
   } catch (error) {
     res.status(404).json({
@@ -230,7 +234,7 @@ const resetPassword = async (req: Request, res: Response) => {
     res.status(404).json({
       success: false,
       message: "Something went wrong",
-      error: error,
+      error: error.message,
     });
   }
 };

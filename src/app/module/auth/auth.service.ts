@@ -317,15 +317,15 @@ const forgerPassword = async (email: string) => {
     },
   });
 
-  console.log(isUserExists);
+  console.log("user in forgetpassword", isUserExists);
   if (!isUserExists) {
-    throw new AppError(500, "User not found");
+    throw new AppError(500, "tomar email pai nai not found");
   }
   if (!isUserExists.emailVerified) {
     throw new AppError(500, "Email not varifed");
   }
-  if (!isUserExists.deletedAt || isUserExists.status === UserStatus.DELETED) {
-    throw new AppError(500, "User not found");
+  if (isUserExists.isDeleted || isUserExists.status === UserStatus.DELETED) {
+    throw new AppError(500, "your email is deleted  ");
   }
 
   await auth.api.requestPasswordResetEmailOTP({
@@ -346,14 +346,15 @@ const resetPassword = async (
     },
   });
 
+  console.log("user found in rest password service", isUserExists);
   if (!isUserExists) {
     throw new AppError(500, "User not found");
   }
   if (!isUserExists.emailVerified) {
     throw new AppError(500, "Email not varifed");
   }
-  if (!isUserExists.deletedAt || isUserExists.status === UserStatus.DELETED) {
-    throw new AppError(500, "User not found");
+  if (isUserExists.status === UserStatus.DELETED) {
+    throw new AppError(500, "You email in deleted in database");
   }
 
   await auth.api.resetPasswordEmailOTP({
