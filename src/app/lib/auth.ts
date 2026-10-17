@@ -6,6 +6,7 @@ import { Role, UserStatus } from "../../../generated/prisma/enums";
 import { bearer, emailOTP } from "better-auth/plugins";
 import { sendEmail } from "../utils/email";
 import { name } from "ejs";
+import { envVars } from "../config/env";
 // If your Prisma file is located elsewhere, you can change the path
 
 export const auth = betterAuth({
@@ -13,11 +14,30 @@ export const auth = betterAuth({
     provider: "postgresql", // or "mysql", "postgresql", ...etc
   }),
   baseURL: process.env.BASE_URL || "http://localhost:5000",
+  secret: envVars.BETTER_AUTH_SECRET,
   trustedOrigins: [process.env.APP_URL! || "http://localhost:3000"],
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,
   },
+
+  socialProviders: {
+    google: {
+      clientId: envVars.GOOGLE_CLIENT_ID,
+      clientSecret: envVars.GOOGLE_CLIENT_SECRET,
+      mapProfileToUser: () => {
+        return {
+          role: Role.PATIENT,
+          status: UserStatus.ACTIVE,
+          needPasswordChange: false,
+          emailVerified: true,
+          isDeleted: false,
+          deletedAt: null,
+        };
+      },
+    },
+  },
+
   emailVerification: {
     sendOnSignIn: true,
     sendOnSignUp: true,
@@ -100,6 +120,30 @@ export const auth = betterAuth({
     cookieCache: {
       enabled: true,
       maxAge: 60 * 60 * 60 * 24,
+    },
+  },
+
+  // redirectURLS: { signIn: "" },
+
+  advanced: {
+    useSecureCookies: false,
+    cookies: {
+      state: {
+        attributes: {
+          sameSite: "none",
+          secure: true,
+          httpOnly: true,
+          path: "/",
+        },
+      },
+      sessionToken: {
+        attributes: {
+          sameSite: "none",
+          secure: true,
+          httpOnly: true,
+          path: "/",
+        },
+      },
     },
   },
 });
