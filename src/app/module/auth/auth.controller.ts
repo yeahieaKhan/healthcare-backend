@@ -253,7 +253,7 @@ const googleLogin = async (req: Request, res: Response) => {
 };
 
 const googleLoginSuccess = async (req: Request, res: Response) => {
-  const redirectPath = req.query.redirect || "/dashboard";
+  const redirectPath = (req.query.redirect as string) || "/dashboard";
   const sessionToken = req.cookies["better-auth.session_token"];
   if (!sessionToken) {
     return res.redirect(`${envVars.FRONTEND_URL}/login?error=oauth_failed`);
@@ -265,12 +265,30 @@ const googleLoginSuccess = async (req: Request, res: Response) => {
     },
   });
 
+  if (!session) {
+    return res.redirect(`${envVars.FRONTEND_URL}/login?error=no_session_found`);
+  }
+
   if (session && !session.user) {
     return res.redirect(`${envVars.FRONTEND_URL}/login?error=no_user_found`);
   }
   const result = await AuthService.googleLoginSuccess(session);
 
-  const {accessToken, }
+  const { accessToken, refreshToken } = result;
+
+  tokenUtils.setAccessTokenCookie(res, accessToken);
+  tokenUtils.setRefreshTokenCookie(res, refreshToken);
+
+  const isValidRedirectPath =
+    redirectPath.startsWith("/") && !redirectPath.startsWith("//");
+
+  const finalRedirectPath = isValidRedirectPath ? redirectPath : "/dashboard";
+  res.redirect(`${envVars.FRONTEND_URL}${finalRedirectPath}`);
+};
+
+const handlerOAuthError = async (req: Request, res: Response) => {
+  const error = req.query.error || "oauth failed";
+  res.redirect(`${envVars.FRONTEND_URL}/login?error=${error}`);
 };
 
 export const AuthController = {
@@ -284,4 +302,6 @@ export const AuthController = {
   forgetPassword,
   resetPassword,
   googleLogin,
+  googleLoginSuccess,
+  handlerOAuthError,
 };

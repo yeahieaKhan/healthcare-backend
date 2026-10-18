@@ -10,8 +10,46 @@
       <p>Redirecting to google ................</p>
     </div>
   </body>
-
   <script>
+    (async () => {
+      try {
+        const response = await fetch(
+          "<%= betterAuthUrl %>/api/auth/sign-in/social",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            credentials: "include",
+            body: JSON.stringify({
+              provider: "google",
+              callbackURL: "<%= callbackUrl %>",
+            }),
+          },
+        );
+
+        const data = await response.json();
+        console.log(data);
+
+        if (data.url) {
+          window.location.href = data.url;
+        } else {
+          document.body.innerHTML = `
+          <p>Error occurred while redirecting to Google.</p>
+          <pre>${data.message || JSON.stringify(data)}</pre>
+        `;
+        }
+      } catch (error) {
+        document.body.innerHTML = `
+        <p>Error occurred while redirecting to Google.</p>
+        <pre>${error.message}</pre>
+      `;
+        console.error("Google login error:", error);
+      }
+    })();
+  </script>
+
+  <!-- <script>
     async () => {
       try {
         const response = await fetch(
@@ -45,5 +83,5 @@
             </div>`;
       }
     };
-  </script>
+  </script> -->
 </html>
