@@ -32,4 +32,10 @@ router.post("/verify-email", AuthController.verifyEmail);
 router.post("/forget-password", AuthController.forgetPassword);
 router.post("/reset-password", AuthController.resetPassword);
 
+// google login
+
+router.get("/login/google");
+router.get("/google/success");
+router.get("/oauth/error");
+
 export const authRouter = router;

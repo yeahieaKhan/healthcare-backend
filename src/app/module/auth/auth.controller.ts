@@ -6,6 +6,7 @@ import { envVars } from "../../config/env";
 import { json, success } from "zod";
 import AppError from "../../errorHelpers/AppError";
 import { CookieUtils } from "../../utils/cookie";
+import { auth } from "../../lib/auth";
 
 const registerPatient = async (req: Request, res: Response) => {
   try {
@@ -217,7 +218,7 @@ const forgetPassword = async (req: Request, res: Response) => {
     res.status(404).json({
       success: false,
       message: "Something went wrong",
-      error: error.message,
+      error: error,
     });
   }
 };
@@ -234,9 +235,42 @@ const resetPassword = async (req: Request, res: Response) => {
     res.status(404).json({
       success: false,
       message: "Something went wrong",
-      error: error.message,
+      error: error,
     });
   }
+};
+
+const googleLogin = async (req: Request, res: Response) => {
+  const redirectPath = req.query.redirect || "/dashboard";
+
+  const encodedRedirectPath = encodeURIComponent(redirectPath as string);
+
+  const callbackUrl = `${envVars.BETTER_AUTH_URL}/api/v1/auth/google/success?redirect=${encodedRedirectPath}`;
+  res.render("googleRedirect", {
+    callbackUrl: callbackUrl,
+    betterAuthUrl: envVars.BETTER_AUTH_URL,
+  });
+};
+
+const googleLoginSuccess = async (req: Request, res: Response) => {
+  const redirectPath = req.query.redirect || "/dashboard";
+  const sessionToken = req.cookies["better-auth.session_token"];
+  if (!sessionToken) {
+    return res.redirect(`${envVars.FRONTEND_URL}/login?error=oauth_failed`);
+  }
+
+  const session = await auth.api.getSession({
+    headers: {
+      Cookie: `better-auth.session_token=${sessionToken}`,
+    },
+  });
+
+  if (session && !session.user) {
+    return res.redirect(`${envVars.FRONTEND_URL}/login?error=no_user_found`);
+  }
+  const result = await AuthService.googleLoginSuccess(session);
+
+  const {accessToken, }
 };
 
 export const AuthController = {
@@ -249,4 +283,5 @@ export const AuthController = {
   verifyEmail,
   forgetPassword,
   resetPassword,
+  googleLogin,
 };
