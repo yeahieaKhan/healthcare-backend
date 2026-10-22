@@ -4,7 +4,12 @@ import { string, success } from "better-auth";
 import { prisma } from "../../lib/prisma";
 
 const specialtyCreate = async (req: Request, res: Response) => {
-  const payload = req.body;
+  console.log(req.body);
+  const payload = {
+    ...req.body,
+    icon:req.file?.path
+  };
+
   const result = await SpecialtyService.createSpecialty(payload);
   res.status(201).json({
     success: true,
