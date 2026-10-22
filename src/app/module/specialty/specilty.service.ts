@@ -5,6 +5,8 @@ import { prisma } from "../../lib/prisma";
 const createSpecialty = async (
   payload: Prisma.SpecialtyCreateInput,
 ): Promise<Specialty> => {
+  // throw new AppError(400, "Something from clourdnary");
+
   const existingSpecialty = await prisma.specialty.findUnique({
     where: {
       title: payload.title,
