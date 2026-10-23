@@ -176,6 +176,56 @@ export class QueryBuilder<
   }
   // filter
 
+  include(relation: TInclude): this {
+    if (this.selectFields) {
+      return this;
+    }
+
+    this.query.include = {
+      ...(this.query.include as Record<string, unknown>),
+      ...(relation as Record<string, unknown>),
+    };
+    return this;
+  }
+
+  dynamicInclude(
+    includeConfig: Record<string, unknown>,
+    defaultInclude?: string[],
+  ): this {
+    if (this.selectFields) {
+      return this;
+    }
+
+    const result: Record<string, unknown> = {};
+
+    defaultInclude?.forEach((field) => {
+      if (includeConfig[field]) {
+        result[field] = includeConfig[field];
+      }
+    });
+
+    const includeParam = this.queryParams.includes as string | undefined;
+
+    if (includeParam && typeof includeParam === "string") {
+      const requestRelations = includeParam
+        .split(".")
+        .map((relation) => relation.trim());
+
+      requestRelations.forEach((relation) => {
+        if (includeConfig[relation]) {
+          result[relation] = includeConfig[relation];
+        }
+      });
+    }
+
+    this.query.include = {
+      ...(this.query.include as Record<string, unknown>),
+      ...result,
+    };
+
+    return this;
+  }
+
   filter(): this {
     const { filterableFields } = this.config;
 
@@ -313,10 +363,20 @@ export class QueryBuilder<
 
     Object.keys(value).forEach((operator) => {
       const operatorValue = value[operator];
+
+      //   const parsedValue: string | number =
+      //     typeof operatorValue === "string" && !isNaN(Number(operatorValue))
+      //       ? Number(operatorValue)
+      //       : operatorValue;
+
       const parsedValue: string | number =
-        typeof operatorValue === "string" && !isNaN(Number(operatorValue))
-          ? Number(operatorValue)
-          : operatorValue;
+        typeof operatorValue === "string"
+          ? !isNaN(Number(operatorValue)) && operatorValue.trim() !== ""
+            ? Number(operatorValue)
+            : operatorValue
+          : typeof operatorValue === "number"
+            ? operatorValue
+            : String(operatorValue);
 
       switch (operator) {
         case "lt":
