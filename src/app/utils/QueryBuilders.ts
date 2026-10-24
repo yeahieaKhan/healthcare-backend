@@ -176,7 +176,7 @@ export class QueryBuilder<
 
   sort(): this {
     const sortBy = this.queryParams.sortBy || "createdAt";
-    const sortOrder = this.queryParams.sortOrder === "asc" ? "asc" : "desc";
+    const sortOrder = this.queryParams.sortOrder === "desc" ? "desc" : "asc";
     this.sortBy = sortBy;
     this.sortOrder = sortOrder;
 

@@ -11,7 +11,8 @@ const getAllDoctors = async (req: Request, res: Response) => {
     res.status(200).json({
       success: true,
       message: "Doctors retrieved successfully",
-      data: result,
+      data: result.data,
+      meta: result.meta,
     });
   } catch (error) {
     res.status(500).json({
