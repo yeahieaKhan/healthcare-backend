@@ -34,7 +34,6 @@ export class QueryBuilder<
     this.query = {
       where: {},
       include: {},
-      select: {},
       orderBy: {},
       skip: 0,
       take: 10,
@@ -44,11 +43,66 @@ export class QueryBuilder<
       where: {},
     };
 
-    this.selectFields = {};
+    // this.selectFields = {};
   }
 
+  // search(): this {
+  //   const { searchTerm } = this.queryParams;
+  //   const { searchableFields } = this.config;
+
+  //   if (searchTerm && searchableFields && searchableFields.length > 0) {
+  //     const searchConditions: Record<string, unknown>[] = searchableFields.map(
+  //       (field): Record<string, unknown> => {
+  //         const stringFilter: PrismaStringFields = {
+  //           contains: searchTerm,
+  //           mode: "insensitive" as const,
+  //         };
+
+  //         if (field.includes(".")) {
+  //           const parts = field.split(".");
+
+  //           if (parts.length === 2) {
+  //             const relation = parts[0]!;
+  //             const nestedField = parts[1]!;
+
+  //             return {
+  //               [relation]: {
+  //                 [nestedField]: stringFilter,
+  //               },
+  //             };
+  //           } else if (parts.length === 3) {
+  //             const relation = parts[0]!;
+  //             const nestedRelation = parts[1]!;
+  //             const nestedField = parts[2]!;
+
+  //             return {
+  //               [relation]: {
+  //                 [nestedRelation]: {
+  //                   [nestedField]: stringFilter,
+  //                 },
+  //               },
+  //             };
+  //           }
+  //         }
+
+  //         return {
+  //           [field]: stringFilter,
+  //         };
+  //       },
+  //     );
+
+  //     const whereCondition = this.query.where as PrismaWhereCondition;
+  //     whereCondition.OR = searchConditions;
+
+  //     const countWhereCondition = this.countQuery.where as PrismaWhereCondition;
+  //     countWhereCondition.OR = searchConditions;
+  //   }
+
+  //   return this;
+  // }
+
   search(): this {
-    const { searchTerm } = this.queryParams;
+    const { searchTerm } = this.queryParams ?? {};
     const { searchableFields } = this.config;
 
     if (searchTerm && searchableFields && searchableFields.length > 0) {
@@ -56,7 +110,7 @@ export class QueryBuilder<
         (field): Record<string, unknown> => {
           const stringFilter: PrismaStringFields = {
             contains: searchTerm,
-            mode: "insensitive" as const,
+            mode: "insensitive",
           };
 
           if (field.includes(".")) {
@@ -71,15 +125,19 @@ export class QueryBuilder<
                   [nestedField]: stringFilter,
                 },
               };
-            } else if (parts.length === 3) {
+            }
+
+            if (parts.length === 3) {
               const relation = parts[0]!;
               const nestedRelation = parts[1]!;
               const nestedField = parts[2]!;
 
               return {
                 [relation]: {
-                  [nestedRelation]: {
-                    [nestedField]: stringFilter,
+                  some: {
+                    [nestedRelation]: {
+                      [nestedField]: stringFilter,
+                    },
                   },
                 },
               };

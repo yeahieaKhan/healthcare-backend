@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import { UserService } from "./user.service";
-import { success } from "zod";
 
 const createDoctor = async (req: Request, res: Response) => {
   try {
@@ -15,7 +14,7 @@ const createDoctor = async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       message: "Failed to create doctor",
-      error: error,
+      error: error.message,
     });
   }
 };

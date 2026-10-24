@@ -2,10 +2,12 @@ import { Request, Response } from "express";
 import { DoctorService } from "./doctor.service";
 import { success } from "zod";
 import AppError from "../../errorHelpers/AppError";
+import { IqueryParams } from "../../interfaces/query.interface";
 
 const getAllDoctors = async (req: Request, res: Response) => {
+  const query = req.query;
   try {
-    const result = await DoctorService.getAllDoctors();
+    const result = await DoctorService.getAllDoctors(query as IqueryParams);
     res.status(200).json({
       success: true,
       message: "Doctors retrieved successfully",
@@ -15,7 +17,7 @@ const getAllDoctors = async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       message: "Failed to retrieve doctors",
-      error: "Failed to retrieve doctors",
+      error: error.message,
     });
   }
 };
