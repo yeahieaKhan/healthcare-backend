@@ -162,143 +162,6 @@ export class QueryBuilder<
     return this;
   }
 
-<<<<<<< HEAD
-  //paginate
-  paginate(): this {
-    const page = Number(this.queryParams.page) || 1;
-    const limit = Number(this.queryParams.limit) || 10;
-    this.page = page;
-    this.limit = limit;
-    this.skip = (page - 1) * 1;
-    this.query.skip = this.skip;
-    this.query.take = this.limit;
-    return this;
-  }
-
-  // sort
-
-  sort(): this {
-    const sortBy = this.queryParams.sortBy || "createdAt";
-    const sortOrder = this.queryParams.sortOrder === "desc" ? "desc" : "asc";
-    this.sortBy = sortBy;
-    this.sortOrder = sortOrder;
-
-    if (sortBy.includes(".")) {
-      const parts = sortBy.split(".");
-
-      if (parts.length === 2) {
-        const relation = parts[0]!;
-        const nestedField = parts[1]!;
-        this.query.orderBy = {
-          [relation]: {
-            [nestedField]: sortOrder,
-          },
-        };
-      } else if (parts.length === 3) {
-        const relation = parts[0]!;
-        const nestedField = parts[1]!;
-        const nestedRelation = parts[2]!;
-        this.query.orderBy = {
-          [relation]: {
-            [nestedRelation]: {
-              [nestedField]: sortOrder,
-            },
-          },
-        };
-      } else {
-        this.query.orderBy = {
-          [sortBy]: sortOrder,
-        };
-      }
-    }
-    return this;
-  }
-
-  fields(): this {
-    const fieldsParam = this.queryParams.fields;
-
-    if (fieldsParam && typeof fieldsParam === "string") {
-      const fieldsArray = fieldsParam?.split(".").map((field) => field.trim());
-      this.selectFields = {};
-
-      fieldsArray?.forEach((field) => {
-        if (this.selectFields) {
-          this.selectFields[field] = true;
-        }
-      });
-
-      this.query.select = this.selectFields as Record<
-        string,
-        boolean | Record<string, unknown>
-      >;
-
-      delete this.query.include;
-    }
-    return this;
-  }
-  // filter
-
-  include(relation: TInclude): this {
-    if (this.selectFields) {
-      return this;
-    }
-
-    this.query.include = {
-      ...(this.query.include as Record<string, unknown>),
-      ...(relation as Record<string, unknown>),
-    };
-    return this;
-  }
-
-  dynamicInclude(
-    includeConfig: Record<string, unknown>,
-    defaultInclude?: string[],
-  ): this {
-    if (this.selectFields) {
-      return this;
-    }
-
-    const result: Record<string, unknown> = {};
-
-    defaultInclude?.forEach((field) => {
-      if (includeConfig[field]) {
-        result[field] = includeConfig[field];
-      }
-    });
-
-    const includeParam = this.queryParams.includes as string | undefined;
-
-    if (includeParam && typeof includeParam === "string") {
-      const requestRelations = includeParam
-        .split(".")
-        .map((relation) => relation.trim());
-
-      requestRelations.forEach((relation) => {
-        if (includeConfig[relation]) {
-          result[relation] = includeConfig[relation];
-        }
-      });
-    }
-
-    this.query.include = {
-      ...(this.query.include as Record<string, unknown>),
-      ...result,
-    };
-
-    return this;
-  }
-
-  where(condition: TInclude): this {
-    this.query.where = this.deepMerge(
-      this.query.where as Record<string, unknown>,
-      condition as Record<string, unknown>,
-    );
-
-    return this;
-  }
-
-=======
->>>>>>> 4bd65d5 (40-13 Refactoring Query Builder And Fixing The Issues)
   filter(): this {
     const { filterableFields } = this.config;
 
@@ -392,10 +255,6 @@ export class QueryBuilder<
           return;
         }
       } else {
-        // queryWhere[key] = this.parseFilterValue(value);
-        // countQueryWhere[key] = this.parseFilterValue(value);
-        // return;
-
         const parsedValue =
           key === "gender"
             ? String(value).trim().toUpperCase()
@@ -404,10 +263,6 @@ export class QueryBuilder<
         queryWhere[key] = parsedValue;
         countQueryWhere[key] = parsedValue;
 
-        console.log("This si progblem");
-        return;
-      }
-      if (!isAllowedField) {
         return;
       }
 
@@ -433,7 +288,7 @@ export class QueryBuilder<
     const limit = Number(this.queryParams.limit) || 10;
     this.page = page;
     this.limit = limit;
-    this.skip = (page - 1) * 1;
+    this.skip = (page - 1) * limit;
     this.query.skip = this.skip;
     this.query.take = this.limit;
     return this;
@@ -443,7 +298,7 @@ export class QueryBuilder<
 
   sort(): this {
     const sortBy = this.queryParams.sortBy || "createdAt";
-    const sortOrder = this.queryParams.sortOrder === "asc" ? "asc" : "desc";
+    const sortOrder = this.queryParams.sortOrder === "desc" ? "desc" : "asc";
     this.sortBy = sortBy;
     this.sortOrder = sortOrder;
 
@@ -474,10 +329,6 @@ export class QueryBuilder<
           [sortBy]: sortOrder,
         };
       }
-    } else {
-      this.query.orderBy = {
-        [sortBy]: sortOrder,
-      };
     }
     return this;
   }
@@ -504,6 +355,7 @@ export class QueryBuilder<
     }
     return this;
   }
+  // filter
 
   include(relation: TInclude): this {
     if (this.selectFields) {
@@ -533,7 +385,7 @@ export class QueryBuilder<
       }
     });
 
-    const includeParam = this.queryParams.include as string | undefined;
+    const includeParam = this.queryParams.includes as string | undefined;
 
     if (includeParam && typeof includeParam === "string") {
       const requestRelations = includeParam
@@ -563,6 +415,8 @@ export class QueryBuilder<
 
     return this;
   }
+
+  // sort
 
   async execute(): Promise<IQueryResult<T>> {
     const [total, data] = await Promise.all([
