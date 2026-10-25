@@ -23,18 +23,20 @@ export class QueryBuilder<
   private limit: number = 10;
   private skip: number = 0;
   private sortBy: string = "createdAt";
-  private sortOrder: "asc" | "desc" = "desc";
-  private selectFields: Record<string, boolean | undefined | boolean> = {};
+  private sortOrder: "desc" | "asc" = "asc";
+  private selectFields: Record<string, boolean> | undefined;
 
   constructor(
     private model: PrismaModelDelegate,
     private queryParams: IqueryParams,
-    private config: IQueryConfig,
+    private config: IQueryConfig = {},
   ) {
     this.query = {
       where: {},
       include: {},
-      orderBy: {},
+      orderBy: {
+        createdAt: "asc",
+      },
       skip: 0,
       take: 10,
     };
@@ -160,6 +162,7 @@ export class QueryBuilder<
     return this;
   }
 
+<<<<<<< HEAD
   //paginate
   paginate(): this {
     const page = Number(this.queryParams.page) || 1;
@@ -294,6 +297,8 @@ export class QueryBuilder<
     return this;
   }
 
+=======
+>>>>>>> 4bd65d5 (40-13 Refactoring Query Builder And Fixing The Issues)
   filter(): this {
     const { filterableFields } = this.config;
 
@@ -350,13 +355,15 @@ export class QueryBuilder<
             countQueryWhere[relation] = {};
           }
 
-          queryWhere[relation] = {
-            [nestedField]: this.parseFilterValue(value),
-          };
+          const queryRelation = queryWhere[relation] as Record<string, unknown>;
+          const countRelation = countQueryWhere[relation] as Record<
+            string,
+            unknown
+          >;
 
-          countQueryWhere[relation] = {
-            [nestedField]: this.parseFilterValue(value),
-          };
+          queryRelation[nestedField] = this.parseFilterValue(value);
+          countRelation[nestedField] = this.parseFilterValue(value);
+          return;
         } else if (parts.length === 3) {
           const relation = parts[0]!;
           const nestedRelation = parts[1]!;
@@ -366,23 +373,41 @@ export class QueryBuilder<
             queryWhere[relation] = {};
             countQueryWhere[relation] = {};
           }
+          const queryRelation = queryWhere[relation] as Record<string, unknown>;
+          const countRelation = countQueryWhere[relation] as Record<
+            string,
+            unknown
+          >;
 
-          queryWhere[relation] = {
-            [nestedRelation]: {
-              [nestedField]: this.parseFilterValue(value),
-            },
-          };
+          queryRelation[nestedField] = this.parseFilterValue(value);
+          countRelation[nestedField] = this.parseFilterValue(value);
 
-          countQueryWhere[relation] = {
-            [nestedRelation]: {
-              [nestedField]: this.parseFilterValue(value),
-            },
-          };
+          if (!queryRelation[nestedRelation]) {
+            queryRelation[nestedRelation] = {};
+          }
+          if (!countRelation[nestedRelation]) {
+            countRelation[nestedRelation] = {};
+          }
+
           return;
         }
       } else {
-        queryWhere[key] = this.parseFilterValue(value);
-        countQueryWhere[key] = this.parseFilterValue(value);
+        // queryWhere[key] = this.parseFilterValue(value);
+        // countQueryWhere[key] = this.parseFilterValue(value);
+        // return;
+
+        const parsedValue =
+          key === "gender"
+            ? String(value).trim().toUpperCase()
+            : this.parseFilterValue(value);
+
+        queryWhere[key] = parsedValue;
+        countQueryWhere[key] = parsedValue;
+
+        console.log("This si progblem");
+        return;
+      }
+      if (!isAllowedField) {
         return;
       }
 
@@ -398,6 +423,143 @@ export class QueryBuilder<
       queryWhere[key] = this.parseFilterValue(value);
       countQueryWhere[key] = this.parseFilterValue(value);
     });
+
+    return this;
+  }
+
+  //paginate
+  paginate(): this {
+    const page = Number(this.queryParams.page) || 1;
+    const limit = Number(this.queryParams.limit) || 10;
+    this.page = page;
+    this.limit = limit;
+    this.skip = (page - 1) * 1;
+    this.query.skip = this.skip;
+    this.query.take = this.limit;
+    return this;
+  }
+
+  // sort
+
+  sort(): this {
+    const sortBy = this.queryParams.sortBy || "createdAt";
+    const sortOrder = this.queryParams.sortOrder === "asc" ? "asc" : "desc";
+    this.sortBy = sortBy;
+    this.sortOrder = sortOrder;
+
+    if (sortBy.includes(".")) {
+      const parts = sortBy.split(".");
+
+      if (parts.length === 2) {
+        const relation = parts[0]!;
+        const nestedField = parts[1]!;
+        this.query.orderBy = {
+          [relation]: {
+            [nestedField]: sortOrder,
+          },
+        };
+      } else if (parts.length === 3) {
+        const relation = parts[0]!;
+        const nestedField = parts[1]!;
+        const nestedRelation = parts[2]!;
+        this.query.orderBy = {
+          [relation]: {
+            [nestedRelation]: {
+              [nestedField]: sortOrder,
+            },
+          },
+        };
+      } else {
+        this.query.orderBy = {
+          [sortBy]: sortOrder,
+        };
+      }
+    } else {
+      this.query.orderBy = {
+        [sortBy]: sortOrder,
+      };
+    }
+    return this;
+  }
+
+  fields(): this {
+    const fieldsParam = this.queryParams.fields;
+
+    if (fieldsParam && typeof fieldsParam === "string") {
+      const fieldsArray = fieldsParam?.split(",").map((field) => field.trim());
+      this.selectFields = {};
+
+      fieldsArray?.forEach((field) => {
+        if (this.selectFields) {
+          this.selectFields[field] = true;
+        }
+      });
+
+      this.query.select = this.selectFields as Record<
+        string,
+        boolean | Record<string, unknown>
+      >;
+
+      delete this.query.include;
+    }
+    return this;
+  }
+
+  include(relation: TInclude): this {
+    if (this.selectFields) {
+      return this;
+    }
+
+    this.query.include = {
+      ...(this.query.include as Record<string, unknown>),
+      ...(relation as Record<string, unknown>),
+    };
+    return this;
+  }
+
+  dynamicInclude(
+    includeConfig: Record<string, unknown>,
+    defaultInclude?: string[],
+  ): this {
+    if (this.selectFields) {
+      return this;
+    }
+
+    const result: Record<string, unknown> = {};
+
+    defaultInclude?.forEach((field) => {
+      if (includeConfig[field]) {
+        result[field] = includeConfig[field];
+      }
+    });
+
+    const includeParam = this.queryParams.include as string | undefined;
+
+    if (includeParam && typeof includeParam === "string") {
+      const requestRelations = includeParam
+        .split(".")
+        .map((relation) => relation.trim());
+
+      requestRelations.forEach((relation) => {
+        if (includeConfig[relation]) {
+          result[relation] = includeConfig[relation];
+        }
+      });
+    }
+
+    this.query.include = {
+      ...(this.query.include as Record<string, unknown>),
+      ...result,
+    };
+
+    return this;
+  }
+
+  where(condition: TInclude): this {
+    this.query.where = this.deepMerge(
+      this.query.where as Record<string, unknown>,
+      condition as Record<string, unknown>,
+    );
 
     return this;
   }
@@ -458,6 +620,8 @@ export class QueryBuilder<
         } else {
           result[key] = source[key];
         }
+      } else {
+        result[key] = source[key];
       }
     }
 

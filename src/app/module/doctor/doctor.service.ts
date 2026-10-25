@@ -1,3 +1,4 @@
+import { includes } from "zod";
 import AppError from "../../errorHelpers/AppError";
 import { IqueryParams } from "../../interfaces/query.interface";
 import { prisma } from "../../lib/prisma";
@@ -42,15 +43,22 @@ const getAllDoctors = async (query: IqueryParams) => {
     .where({ isDeleted: false })
     .include({
       user: true,
+<<<<<<< HEAD
       specialties: {
         include: {
           specialty: true,
         },
       },
+=======
+      // specialties: {
+      //   include: {
+      //     specialty: true,
+      //   },
+      // },
+>>>>>>> 4bd65d5 (40-13 Refactoring Query Builder And Fixing The Issues)
     })
     // .dynamicInclude(doctorIncludeConfig)
     .paginate()
-    .sort()
     .fields()
     .execute();
 
