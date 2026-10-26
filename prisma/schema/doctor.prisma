@@ -30,6 +30,8 @@ model Doctor {
     user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
     specialties DoctorSpecialty[]
+    doctorSchedules DoctorSchedules[]
+
   
 
     @@index([email], name:"doctor_email_index")
