@@ -1,6 +1,6 @@
 import z from "zod";
 
-const createScheduleZodSchema = z.object({
+export const createScheduleZodSchema = z.object({
   startDate: z.string().refine((date) => !isNaN(Date.parse(date)), {
     message: "Invalid date format",
   }),
@@ -19,7 +19,7 @@ const createScheduleZodSchema = z.object({
     }),
 });
 
-const updateScheduleZodSchema = z.object({
+export const updateScheduleZodSchema = z.object({
   startDate: z
     .string()
     .refine((date) => !isNaN(Date.parse(date)), {
@@ -45,8 +45,3 @@ const updateScheduleZodSchema = z.object({
     })
     .optional(),
 });
-
-export const ScheduleValidation = {
-  createScheduleZodSchema,
-  updateScheduleZodSchema,
-};
