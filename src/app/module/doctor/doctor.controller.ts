@@ -18,7 +18,7 @@ const getAllDoctors = async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       message: "Failed to retrieve doctors",
-      error: error.message,
+      error: error,
     });
   }
 };

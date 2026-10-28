@@ -4,6 +4,7 @@ import { authRouter } from "../module/auth/auth.router";
 import { UserRouter } from "../module/user/user.router";
 import { DoctorRouter } from "../module/doctor/doctor.router";
 import { AdminRouter } from "../module/admin/admin.router";
+import { ScheduleRoutes } from "../module/schedule/schedule.router";
 
 const router = Router();
 
@@ -16,5 +17,6 @@ router.use("/users", UserRouter);
 // Doctor router
 router.use("/doctors", DoctorRouter);
 router.use("/admins", AdminRouter);
+router.use("/schedule", ScheduleRoutes);
 
 export const IndexRouter = router;
