@@ -12,7 +12,7 @@ router.post(
   ScheduleController.createSchedule,
   validateRequest(createScheduleZodSchema),
 );
-router.get("/", checkAuth(Role.ADMIN), ScheduleController.getAllSchedules);
+router.get("/", ScheduleController.getAllSchedules);
 router.get("/:id", ScheduleController.getDoctorById);
 router.patch("/:id", ScheduleController.updateSchedule);
 
