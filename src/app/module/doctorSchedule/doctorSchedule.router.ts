@@ -23,4 +23,10 @@ router.get(
   DoctorScheduleController.getMySchedule,
 );
 
+router.get(
+  "/:doctorId/schedule/:scheduleId",
+  checkAuth(Role.DOCTOR),
+  DoctorScheduleController.getMySchedule,
+);
+
 export const DoctorScheduleRouter = router;

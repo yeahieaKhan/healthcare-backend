@@ -75,8 +75,32 @@ const getMySchedule = async (req: Request, res: Response) => {
   }
 };
 
+const getMyScheduleById = async (req: Request, res: Response) => {
+  try {
+    const doctorId = req.params.id;
+    const scheduleId = req.params.id;
+    const result = await DoctorScheduleService.getMyScheduleById(
+      doctorId as string,
+      scheduleId as string,
+    );
+
+    return res.status(200).json({
+      success: false,
+      message: "My single schedule fetched",
+      data: result,
+    });
+  } catch (error) {
+    return res.status(404).json({
+      success: false,
+      message: "Internal server error",
+      error: error,
+    });
+  }
+};
+
 export const DoctorScheduleController = {
   createDoctorSchedule,
   allDoctorSchedule,
   getMySchedule,
+  getMyScheduleById,
 };
