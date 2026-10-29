@@ -33,7 +33,8 @@ const getAllSchedules = async (req: Request, res: Response) => {
     return res.status(200).json({
       success: true,
       message: "Schedules retrieved successfully",
-      data: result,
+      data: result.data,
+      meta: result.meta,
     });
   } catch (error) {
     return res.status(500).json({

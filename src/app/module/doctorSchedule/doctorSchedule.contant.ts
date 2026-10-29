@@ -22,8 +22,6 @@ export const doctorScheduleIncludeConfig: Partial<
   doctor: {
     include: {
       user: true,
-      appointments: true,
-      specialties: true,
     },
   },
   schedule: true,

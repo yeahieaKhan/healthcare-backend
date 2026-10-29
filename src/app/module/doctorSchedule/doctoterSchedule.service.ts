@@ -1,6 +1,13 @@
+import { DoctorSchedules, Prisma } from "../../../../generated/prisma/client";
 import { IqueryParams } from "../../interfaces/query.interface";
 import { IRequestUser } from "../../interfaces/requestUser";
 import { prisma } from "../../lib/prisma";
+import { QueryBuilder } from "../../utils/QueryBuilders";
+import {
+  doctorScheduleFilterableFields,
+  doctorScheduleIncludeConfig,
+  doctorScheduleSearchableFields,
+} from "./doctorSchedule.contant";
 import { ICreateDoctorSchedulePayload } from "./doctorSchedule.interface";
 
 const createMyDoctorSchedule = async (
@@ -37,7 +44,28 @@ const createMyDoctorSchedule = async (
   return result;
 };
 
-export const getMySchedule = async (
+const getAllDoctorSchedules = async (query: IqueryParams) => {
+  const queryBuilder = new QueryBuilder<
+    DoctorSchedules,
+    Prisma.DoctorSchedulesWhereInput,
+    Prisma.DoctorSchedulesInclude
+  >(prisma.doctorSchedules, query, {
+    filterableFields: doctorScheduleFilterableFields,
+    searchableFields: doctorScheduleSearchableFields,
+  });
+
+  const result = await queryBuilder
+    .search()
+    .filter()
+    .paginate()
+    .dynamicInclude(doctorScheduleIncludeConfig)
+    .sort()
+    .execute();
+
+  return result;
+};
+
+const getMyDoctorSchedules = async (
   user: IRequestUser,
   query: IqueryParams,
 ) => {
@@ -46,6 +74,8 @@ export const getMySchedule = async (
       email: user.email,
     },
   });
+
+  console.log("doctor data = ", doctorData.id);
   const queryBuilder = new QueryBuilder<
     DoctorSchedules,
     Prisma.DoctorSchedulesWhereInput,
@@ -53,8 +83,8 @@ export const getMySchedule = async (
   >(
     prisma.doctorSchedules,
     {
-      doctorId: doctorData.id,
       ...query,
+      doctorId: doctorData.id,
     },
     {
       filterableFields: doctorScheduleFilterableFields,
@@ -77,9 +107,13 @@ export const getMySchedule = async (
     .fields()
     .dynamicInclude(doctorScheduleIncludeConfig)
     .execute();
+
+  console.log(doctorSchedules);
   return doctorSchedules;
 };
 
 export const DoctorScheduleService = {
   createMyDoctorSchedule,
+  getMyDoctorSchedules,
+  getAllDoctorSchedules,
 };

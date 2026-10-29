@@ -259,11 +259,17 @@ export class QueryBuilder<
           key === "gender"
             ? String(value).trim().toUpperCase()
             : this.parseFilterValue(value);
-
         queryWhere[key] = parsedValue;
         countQueryWhere[key] = parsedValue;
-
         return;
+        // const parsedValue =
+        //   key === "gender"
+        //     ? String(value).trim().toUpperCase()
+        //     : key === "doctorId"
+        //       ? String(value)
+        //       : this.parseFilterValue(value);
+        // queryWhere[key] = parsedValue;
+        // countQueryWhere[key] = parsedValue;
       }
 
       if (
@@ -418,7 +424,42 @@ export class QueryBuilder<
 
   // sort
 
+  // async execute(): Promise<IQueryResult<T>> {
+  //   const [total, data] = await Promise.all([
+  //     this.model.count(
+  //       this.countQuery as Parameters<typeof this.model.count>[0],
+  //     ),
+  //     this.model.findMany(
+  //       this.query as Parameters<typeof this.model.findMany>[0],
+  //     ),
+  //   ]);
+
+  //   const totalPages = Math.ceil(total / this.limit);
+
+  //   return {
+  //     data: data as T[],
+  //     meta: {
+  //       page: this.page,
+  //       limit: this.limit,
+  //       total,
+  //       totalPages,
+  //     },
+  //   };
+  // }
+
   async execute(): Promise<IQueryResult<T>> {
+    console.log("========== QUERY BUILDER DEBUG ==========");
+    console.log("Query params:", this.queryParams);
+
+    console.log("Count query:", JSON.stringify(this.countQuery, null, 2));
+
+    console.log("Find query:", JSON.stringify(this.query, null, 2));
+
+    console.log("Count where:", this.countQuery.where);
+    console.log("Find where:", this.query.where);
+
+    console.log("=========================================");
+
     const [total, data] = await Promise.all([
       this.model.count(
         this.countQuery as Parameters<typeof this.model.count>[0],
@@ -490,7 +531,7 @@ export class QueryBuilder<
       return false;
     }
 
-    if (typeof value === "string" && isNaN(Number(value)) && value != "") {
+    if (typeof value === "string" && !isNaN(Number(value)) && value != "") {
       return Number(value);
     }
 
