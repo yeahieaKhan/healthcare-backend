@@ -5,11 +5,14 @@ model Schedule {
 
 // relation
  doctorSchedules DoctorSchedules[]
+   appointment Appointment[]
 
 
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+
+
 
 
 

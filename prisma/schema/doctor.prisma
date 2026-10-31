@@ -32,6 +32,11 @@ model Doctor {
     specialties DoctorSpecialty[]
     doctorSchedules DoctorSchedules[]
 
+
+
+    prescription Prescription[]
+    review Review[]
+    appointment Appointment[]
   
 
     @@index([email], name:"doctor_email_index")
