@@ -98,9 +98,36 @@ const getMyScheduleById = async (req: Request, res: Response) => {
   }
 };
 
+const updateMyDoctorSchedule = async (req: Request, res: Response) => {
+  try {
+    const payload = req.body;
+    const user = req.user;
+
+    console.log("user form my my schedule", user.userId);
+
+    const result = await DoctorScheduleService.getMyDoctorSchedules(
+      user,
+      payload,
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Updated my doctor schedule ",
+      data: result,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch my schedule",
+      error: error,
+    });
+  }
+};
+
 export const DoctorScheduleController = {
   createDoctorSchedule,
   allDoctorSchedule,
   getMySchedule,
   getMyScheduleById,
+  updateMyDoctorSchedule,
 };
