@@ -2,6 +2,7 @@ import { uuidv7 } from "zod/mini";
 import { IRequestUser } from "../../interfaces/requestUser";
 import { prisma } from "../../lib/prisma";
 import { IBookAppointmentPayload } from "./appointment.interface";
+import AppError from "../../errorHelpers/AppError";
 
 const bookAppointment = async (
   payload: IBookAppointmentPayload,
@@ -61,4 +62,57 @@ const bookAppointment = async (
     return appointmentData;
   });
   return result;
+};
+
+//get api for my booking
+
+const getMyBookingAppoints = async (user: IRequestUser) => {
+  const patientData = await prisma.patient.findUnique({
+    where: {
+      email: user?.email,
+    },
+  });
+
+  const doctorData = await prisma.doctor.findUnique({
+    where: {
+      email: user?.email,
+    },
+  });
+
+  let appointments = [];
+
+  if (patientData) {
+    appointments = await prisma.appointment.findMany({
+      where: {
+        patientId: patientData.id,
+      },
+      include: {
+        doctor: true,
+        schedule: true,
+      },
+    });
+  } else if (doctorData) {
+    appointments = await prisma.appointment.findMany({
+      where: {
+        doctorId: doctorData.id,
+      },
+      include: {
+        patient: true,
+        schedule: true,
+      },
+    });
+  } else {
+    throw new AppError(404, "User not found!");
+  }
+
+  return appointments;
+};
+
+const getBookingById = async (id: string) => {
+  const result = await prisma.appointment.findFirst();
+};
+
+export const AppointmentBookingService = {
+  bookAppointment,
+  getMyBookingAppoints,
 };
